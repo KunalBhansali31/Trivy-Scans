@@ -1,0 +1,44 @@
+name: Trivy Scan for Repository Vulnerabilities
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the code
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Step 2: Install Trivy
+    - name: Install Trivy
+      run: |
+        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+    # Step 3: Scan the repository for vulnerabilities
+    - name: Scan Repository with Trivy
+      run: |
+        trivy fs --severity HIGH,CRITICAL --exit-code 1 .
+
+    # Step 4: Scan Python dependencies (if requirements.txt exists)
+    - name: Scan Python Dependencies
+      if: ${{ hashFiles('**/requirements.txt') != '' }}
+      run: |
+        trivy fs --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed --skip-dirs .git .
+
+    # Optional: Upload Trivy Report
+    - name: Upload Trivy Report
+      if: failure()
+      run: |
+        trivy fs --format template --template "@contrib/html.tpl" --output trivy-report.html .
+      uses: actions/upload-artifact@v3
+      with:
+        name: trivy-report
+        path: trivy-report.html
