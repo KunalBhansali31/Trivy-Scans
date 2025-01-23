@@ -63,11 +63,11 @@ jobs:
         run: ls -R
 
       - name: Move Trivy Results
-        run: mkdir -p khushig3/Artifacts_Result && mv trivy-config-results.txt khushig3/Artifacts_Result/
+        run: mkdir -p KunalBhansali31/Trivy-Scans && mv trivy-config-results.txt KunalBhansali31/Trivy-Scans/
 
       # Upload Trivy Results as Artifacts
       - name: Upload Trivy Results as Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-results
           path: KunalBhansali31/Trivy-Scans/*
